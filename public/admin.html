@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCC Admin</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0f17; color: #e0e6ed; font-family: -apple-system, sans-serif; padding: 24px; }
+    h1 { font-size: 1.5rem; margin-bottom: 20px; color: #cfa06d; }
+    h2 { font-size: 1.1rem; margin: 16px 0 8px; color: #7fc7b2; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .tab { padding: 8px 20px; border-radius: 8px; border: 1px solid rgba(170,188,204,0.18); background: #14202f; color: #b2c0ce; cursor: pointer; font-size: 0.9rem; }
+    .tab.active { background: #1e3648; color: #cfa06d; border-color: rgba(207,160,109,0.4); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .list { display: grid; gap: 6px; max-height: 420px; overflow-y: auto; margin-bottom: 12px; }
+    .item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(170,188,204,0.12); background: #0d1723; gap: 10px; }
+    .item span { font-weight: 600; }
+    .item .sub { color: #6b7d8e; font-size: 0.8rem; }
+    .btn { padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(170,188,204,0.2); background: #14202f; color: #b2c0ce; cursor: pointer; font-size: 0.82rem; }
+    .btn:hover { border-color: rgba(207,160,109,0.5); color: #cfa06d; }
+    .btn-del { color: #cc7c8f; border-color: rgba(204,124,143,0.3); }
+    .btn-del:hover { background: rgba(204,124,143,0.1); }
+    .btn-save { background: #1e3648; border-color: rgba(127,199,178,0.4); color: #7fc7b2; }
+    .form-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+    .form-row input, .form-row textarea { flex: 1; min-width: 140px; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(170,188,204,0.18); background: #0d1723; color: #e0e6ed; font-size: 0.85rem; }
+    .form-row textarea { min-height: 60px; font-family: monospace; font-size: 0.78rem; }
+    .form-row label { min-width: 80px; font-size: 0.82rem; color: #b2c0ce; }
+    .card-editor { margin-top: 12px; border: 1px solid rgba(170,188,204,0.12); border-radius: 10px; padding: 14px; background: #0b1520; }
+    .card-row { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr 60px; gap: 6px; margin-bottom: 4px; align-items: center; }
+    .card-row input { padding: 6px 8px; border-radius: 6px; border: 1px solid rgba(170,188,204,0.18); background: #0d1723; color: #e0e6ed; font-size: 0.8rem; width: 100%; }
+    .msg { font-size: 0.8rem; padding: 6px 0; }
+    .msg-ok { color: #7fc7b2; }
+    .msg-err { color: #cc7c8f; }
+    .env-row { display: grid; grid-template-columns: 160px 1fr 80px; gap: 8px; align-items: center; margin-bottom: 4px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 20px; }
+    .stat { padding: 16px; border-radius: 10px; border: 1px solid rgba(170,188,204,0.12); background: #0d1723; text-align: center; }
+    .stat .num { font-size: 2rem; font-weight: 700; color: #cfa06d; }
+    .stat .label { font-size: 0.78rem; color: #6b7d8e; margin-top: 4px; }
+    .stat.online { border-color: rgba(127,199,178,0.4); }
+    .stat.online .num { color: #7fc7b2; }
+    .stat.offline { border-color: rgba(204,124,143,0.4); }
+    .stat.offline .num { color: #cc7c8f; }
+    .quick-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .quick-link { padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(170,188,204,0.18); background: #14202f; color: #b2c0ce; cursor: pointer; font-size: 0.85rem; text-decoration: none; display: inline-block; }
+    .quick-link:hover { border-color: rgba(207,160,109,0.5); color: #cfa06d; }
+    .log-preview { margin-top: 16px; max-height: 200px; overflow-y: auto; border: 1px solid rgba(170,188,204,0.12); border-radius: 10px; background: #0b1520; padding: 12px; }
+    .log-preview pre { font-family: monospace; font-size: 0.72rem; color: #6b7d8e; white-space: pre-wrap; word-break: break-all; }
+    a.back { color: #b2c0ce; font-size: 0.82rem; text-decoration: none; }
+    a.back:hover { color: #cfa06d; }
+  </style>
+</head>
+<body>
+  <a class="back" href="/">← Dashboard</a>
+  <h1>⚙ MCC Admin</h1>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="dashboard">Dashboard</button>
+    <button class="tab" data-tab="screens">Screens</button>
+    <button class="tab" data-tab="focus">Focus</button>
+    <button class="tab" data-tab="actions">Actions</button>
+    <button class="tab" data-tab="env">Env Vars</button>
+  </div>
+
+  <!-- Dashboard panel -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="stats" id="statsGrid">
+      <div class="stat"><div class="num" id="statServer">—</div><div class="label">Server Status</div></div>
+      <div class="stat"><div class="num" id="statScreens">—</div><div class="label">Screens</div></div>
+      <div class="stat"><div class="num" id="statActions">—</div><div class="label">Actions</div></div>
+      <div class="stat"><div class="num" id="statCards">—</div><div class="label">Total Cards</div></div>
+    </div>
+    <h2>Quick Actions</h2>
+    <div class="quick-links">
+      <span class="quick-link" onclick="switchTab('screens')">+ New Screen</span>
+      <span class="quick-link" onclick="switchTab('actions')">+ New Action</span>
+      <span class="quick-link" onclick="switchTab('env')">Edit Env Vars</span>
+      <span class="quick-link" onclick="fetch('/api/health').then(r=>r.json()).then(d=>alert('Server: '+(d.ok?'Online':'Offline')))">Health Check</span>
+    </div>
+    <h2 style="margin-top:16px;">Recent Logs</h2>
+    <div class="log-preview" id="logPreview"><pre>Loading...</pre></div>
+    <div style="margin-top:4px;text-align:right">
+      <span class="quick-link" onclick="refreshLogs()">↻ Refresh</span>
+    </div>
+  </div>
+
+  <!-- Focus panel -->
+  <div class="panel" id="panel-focus">
+    <h2>Focus Contexts</h2>
+    <div class="list" id="focusList"></div>
+    <div id="focusEditor" class="card-editor" hidden>
+      <h3 id="focusEditTitle"></h3>
+      <div class="form-row">
+        <label>Bundle ID</label><input id="focusBundleId" />
+      </div>
+      <div class="form-row">
+        <label>App Label</label><input id="focusApp" />
+      </div>
+      <h3 style="margin-top:12px;font-size:0.9rem;">Actions</h3>
+      <div id="focusActionList"></div>
+      <button class="btn" onclick="addFocusAction()">+ Add Action</button>
+      <div style="margin-top:10px;">
+        <button class="btn btn-save" onclick="saveFocus()">Save</button>
+        <span class="msg" id="focusMsg"></span>
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:12px;">
+      <input id="newFocusBundle" placeholder="Bundle ID (e.g. com.example.app)" />
+      <input id="newFocusApp" placeholder="App name" style="max-width:180px" />
+      <button class="btn btn-save" onclick="createFocus()">+ Add</button>
+    </div>
+    <span class="msg" id="focusCreateMsg"></span>
+  </div>
+  <div class="panel active" id="panel-screens">
+    <h2>Workspace Screens</h2>
+    <div class="list" id="screenList"></div>
+    <div class="form-row">
+      <input id="newScreenName" placeholder="Screen name (e.g. my-screen)" />
+      <button class="btn btn-save" onclick="createScreen()">+ Create</button>
+    </div>
+    <div id="screenEditor" class="card-editor" hidden>
+      <h3 id="editingName"></h3>
+      <div class="form-row">
+        <label>Title</label><input id="editTitle" />
+      </div>
+      <div class="form-row">
+        <label>Subtitle</label><input id="editSubtitle" />
+      </div>
+      <h3 style="margin-top:12px;font-size:0.9rem;">Cards</h3>
+      <div id="cardList"></div>
+      <button class="btn" onclick="addCard()">+ Add Card</button>
+      <div style="margin-top:10px;">
+        <button class="btn btn-save" onclick="saveScreen()">Save</button>
+        <span class="msg" id="screenMsg"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions panel -->
+  <div class="panel" id="panel-actions">
+    <h2>Actions</h2>
+    <div class="list" id="actionList"></div>
+    <div class="form-row">
+      <input id="newActionName" placeholder="Action name (e.g. open-myapp)" />
+      <input id="newActionCmd" placeholder="Command (e.g. open -a MyApp)" style="font-family:monospace;flex:2" />
+      <button class="btn btn-save" onclick="createAction()">+ Add</button>
+    </div>
+    <span class="msg" id="actionMsg"></span>
+  </div>
+
+  <!-- Env panel -->
+  <div class="panel" id="panel-env">
+    <h2>Environment Variables</h2>
+    <div id="envList"></div>
+    <div class="env-row" style="margin-top:10px;">
+      <input id="newEnvKey" placeholder="KEY" />
+      <input id="newEnvVal" placeholder="value" style="font-family:monospace" />
+      <button class="btn btn-save" onclick="addEnv()">Add</button>
+    </div>
+    <span class="msg" id="envMsg"></span>
+  </div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>

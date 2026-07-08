@@ -1,0 +1,12 @@
+{
+  "title": "Ops",
+  "subtitle": "Alerting, on-call, AI runbooks, and team comms.",
+  "cards": [
+    { "title": "Alerts", "tag": "Signal", "value": "3", "hint": "All acknowledged", "action": "open-incidentio" },
+    { "title": "On-Call", "tag": "Duty", "value": "—", "hint": "No active shifts" },
+    { "title": "API p95", "tag": "Perf", "value": "210ms", "hint": "Within SLO" },
+    { "title": "Error Rate", "tag": "Reliability", "value": "0.21%", "hint": "Stable last hour" },
+    { "title": "Agent Queue", "tag": "Auto", "value": "6", "hint": "2 waiting approval" },
+    { "title": "Status Page", "tag": "External", "value": "Green", "hint": "No active notices" }
+  ]
+}

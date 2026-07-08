@@ -1,0 +1,9 @@
+{
+  "watch": ["server.js", "server", "public"],
+  "ext": "js,css,html",
+  "exec": "DCC_DEV=1 node server.js",
+  "ignore": ["node_modules", ".git", "state", "certs", "agent"],
+  "events": {
+    "restart": "touch /tmp/dcc-dev-restart"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "title": "Develop",
+  "subtitle": "Build pipelines, branch state, and coding context.",
+  "cards": [
+    { "title": "Build Queue", "tag": "CI", "value": "2", "hint": "Oldest job 4m" },
+    { "title": "PR Review", "tag": "Code", "value": "5", "hint": "2 high-priority", "action": "open-github-org" },
+    { "title": "Package Drift", "tag": "Deps", "value": "7", "hint": "Updates pending" }
+  ]
+}

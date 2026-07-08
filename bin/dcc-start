@@ -1,0 +1,52 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+PID_FILE="/tmp/dcc-server.pid"
+AGENT_PID_FILE="/tmp/dcc-agent.pid"
+LOG_FILE="/tmp/dcc-server.log"
+
+if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
+  echo "MCC server is already running (PID $(cat $PID_FILE))."
+  echo "Use bin/dcc-stop to stop it."
+  exit 1
+fi
+
+echo "┌─────────────────────────────────────┐"
+echo "│  macOS Control Center Deck — start  │"
+echo "└─────────────────────────────────────┘"
+
+source .env 2>/dev/null || true
+trap cleanup EXIT INT TERM
+
+cleanup() {
+  [ -f "$PID_FILE" ] && kill $(cat "$PID_FILE") 2>/dev/null && rm -f "$PID_FILE"
+  [ -f "$AGENT_PID_FILE" ] && kill $(cat "$AGENT_PID_FILE") 2>/dev/null && rm -f "$AGENT_PID_FILE"
+  echo "MCC stopped."
+}
+
+# Start server
+echo "[dcc] Starting server on port ${DCC_PORT:-8721}..."
+node server.js >> "$LOG_FILE" 2>&1 &
+echo $! > "$PID_FILE"
+sleep 1
+
+# Start agent
+echo "[dcc] Starting agent..."
+node agent/index.js >> "$LOG_FILE" 2>&1 &
+echo $! > "$AGENT_PID_FILE"
+
+# Show status
+LOCAL_IP=$(ipconfig getifaddr en0 2>/dev/null || echo "localhost")
+PROTO="https"
+[ -f certs/dcc-local.key ] && [ -f certs/dcc-local.fullchain.crt ] || PROTO="http"
+
+echo ""
+echo "  ✅  Server running →  ${PROTO}://${LOCAL_IP}:${DCC_PORT:-8721}"
+echo "  ✅  Agent running  →  polling every ${DCC_POLL_MS:-30000}ms"
+echo "  ℹ️   Tablet: open ${PROTO}://${LOCAL_IP}:${DCC_PORT:-8721}"
+echo "  ℹ️   Logs:  tail -f $LOG_FILE"
+echo "  ℹ️   Stop:   bin/dcc-stop"
+echo ""
+
+wait

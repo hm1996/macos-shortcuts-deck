@@ -1,0 +1,13 @@
+#!/bin/bash
+PID_FILE="/tmp/dcc-server.pid"
+AGENT_PID_FILE="/tmp/dcc-agent.pid"
+
+stopped=0
+[ -f "$PID_FILE" ] && kill $(cat "$PID_FILE") 2>/dev/null && rm -f "$PID_FILE" && stopped=1
+[ -f "$AGENT_PID_FILE" ] && kill $(cat "$AGENT_PID_FILE") 2>/dev/null && rm -f "$AGENT_PID_FILE" && stopped=1
+
+if [ $stopped -eq 1 ]; then
+  echo "MCC stopped."
+else
+  echo "MCC was not running."
+fi

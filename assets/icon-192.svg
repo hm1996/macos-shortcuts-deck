@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="DevOps Control Center icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b2030" />
+      <stop offset="100%" stop-color="#1d4867" />
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3cd6a8" />
+      <stop offset="100%" stop-color="#ff8f3c" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="40" fill="url(#bg)" />
+  <circle cx="96" cy="96" r="58" fill="none" stroke="url(#ring)" stroke-width="12" />
+  <circle cx="96" cy="96" r="24" fill="#e9f4fb" />
+  <path d="M70 123V69h12l14 20 14-20h12v54h-12V90l-14 19-14-19v33z" fill="#d7ebfa" />
+</svg>
