@@ -1,6 +1,0 @@
-{
-  "watch": ["agent"],
-  "ext": "js",
-  "exec": "node agent/index.js",
-  "ignore": ["node_modules", ".git", "logs"]
-}
